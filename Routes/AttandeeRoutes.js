@@ -1,5 +1,5 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   createAttendeeProfile,
   getMyAttendeeProfile,
   updatePreferences,
@@ -7,22 +7,33 @@ import {
   registerForEvent,
   unregisterEvent,
   addLoyaltyPoints,
-} from "../Controller/AttendeeController.js";
+} = require("../Controller/AttandeeController");
 
-import { checkRole } from "../Middlewear/role.js";
+const { checkRole } = require("../Middlewear/role");
+const { authuser, authorizeRoles } = require("../Middlewear/auth.js");
+
 
 const router = express.Router();
 
-router.post("/create-profile", checkRole("attendee"), createAttendeeProfile);
-router.get("/me", checkRole("attendee"), getMyAttendeeProfile);
-router.patch("/preferences", checkRole("attendee"), updatePreferences);
+// Create attendee profile
+router.post("/create-profile", authuser, authorizeRoles("attendee"), createAttendeeProfile);
 
+// Get my profile
+router.get("/me",authuser, authorizeRoles("attendee"), getMyAttendeeProfile);
 
-router.get("/my-events", checkRole("attendee"), getRegisteredEvents);
-router.post("/register/:eventId", checkRole("attendee"), registerForEvent);
-router.delete("/unregister/:eventId", checkRole("attendee"), unregisterEvent);
+// Update preferences
+router.patch("/preferences", authuser, authorizeRoles("attendee"), updatePreferences);
 
+// Registered events
+router.get("/my-events",authuser, authorizeRoles("attendee"), getRegisteredEvents);
 
-router.patch("/loyalty/add", checkRole("attendee"), addLoyaltyPoints);
+// Register for event
+router.post("/register/:eventId", authuser, authorizeRoles("attendee"), registerForEvent);
 
-export default router;
+// Unregister from event
+router.delete("/unregister/:eventId", authuser, authorizeRoles("attendee"), unregisterEvent);
+
+// Add loyalty points
+router.patch("/loyalty/add", authuser, authorizeRoles("attendee"), addLoyaltyPoints);
+
+module.exports = router;

@@ -3,6 +3,7 @@ const Admin = require('../Modal/AdminModal.js');
 const Organizer = require('../Modal/OrganizerModal.js');
 
 const User = require('../Modal/UserModal.js');
+const Event=require('../Modal/EventModal.js')
 
 /**
  * @desc Get all organizers (optional filter by status)
@@ -32,6 +33,7 @@ exports.verifyOrganizer = async (req, res) => {
   try {
     const { id } = req.params;
     const { action } = req.body; // approve or reject
+    console.log(action,'uuu')
 
     if (!["approve", "reject"].includes(action)) {
       return res.status(400).json({ message: "Invalid action type" });

@@ -3,7 +3,7 @@ require('dotenv').config()
 exports.authuser=(req,res,next)=>{
 console.log("authuser middleware triggerd")
 const token=req.cookies?.token || req.headers.authorization?.split(' ')[1]
-console.log(token)
+// console.log(token)
 if(!token){
     return res.status(400).json({message:"not have token"})
 }
@@ -19,14 +19,14 @@ catch(err){
 exports.authorizeRoles=(...roles)=>{
     console.log(roles)
     return(req,res,next)=>{
-        console.log(req)
+        // console.log(req)
         if(!req.user){
             return res.status(401).json({message:"please log in"})
 
         }
-        console.log(req.user.usertype)
+        console.log(req.user)
 
-        if(!roles.includes(req.user.usertype)){
+        if(!roles.includes(req.user.userType)){
             return res.status(400).json({message:"Accessdenied"})
         }
         next()

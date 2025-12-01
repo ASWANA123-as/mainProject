@@ -1,5 +1,8 @@
-import express from "express";
-import {
+const express = require("express");
+const upload = require('../Middlewear/Upload');
+const { authuser, authorizeRoles } = require("../Middlewear/auth.js");
+
+const {
   createOrganizerProfile,
   updateOrganizerProfile,
   uploadVerificationDocs,
@@ -8,24 +11,29 @@ import {
   createEvent,
   updateEvent,
   deleteEvent,
-} from "../Controller/OrganizerController.js";
+} = require("../Controller/OrganizerController");
 
-import { checkRole } from "../Middlewear/role.js";
+const { checkRole } = require("../Middlewear/role");
 
 const router = express.Router();
 
+// Organizer profile routes
+router.post("/create-profile",authuser, authorizeRoles("organizer"), createOrganizerProfile);
+router.get("/me",authuser, authorizeRoles("organizer"), getMyOrganizerProfile);
+router.put("/update-profile", authuser, authorizeRoles("organizer"), updateOrganizerProfile);
 
-router.post("/create-profile", checkRole("organizer"), createOrganizerProfile);
-router.get("/me", checkRole("organizer"), getMyOrganizerProfile);
-router.put("/update-profile", checkRole("organizer"), updateOrganizerProfile);
+// Upload verification docs
+router.post(
+  "/verification-docs",
+  authuser, authorizeRoles("organizer"),
+  upload.any(), // allow multiple files
+  uploadVerificationDocs
+);
 
-// Upload verification docs (PDF, Images etc.)
-router.post("/verification-docs", checkRole("organizer"), uploadVerificationDocs);
+// Event routes
+router.get("/events", authuser, authorizeRoles("organizer"), getOrganizerEvents);
+router.post("/event", authuser, authorizeRoles("organizer"), createEvent);
+router.put("/event/:eventId",authuser, authorizeRoles("organizer"), updateEvent);
+router.delete("/event/:eventId", authuser, authorizeRoles("organizer"), deleteEvent);
 
-
-router.get("/events", checkRole("organizer"), getOrganizerEvents);
-router.post("/event", checkRole("organizer"), createEvent);
-router.put("/event/:eventId", checkRole("organizer"), updateEvent);
-router.delete("/event/:eventId", checkRole("organizer"), deleteEvent);
-
-export default router;
+module.exports = router;

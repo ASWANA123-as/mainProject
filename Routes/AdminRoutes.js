@@ -5,17 +5,32 @@ const {
   getDashboardStats 
 } = require("../Controller/AdminController.js");
 
-const { checkRole } = require("../Middlewear/role.js");
+const { authuser, authorizeRoles } = require("../Middlewear/auth.js");
 
 const router = express.Router();
 
-// Get all organizers with optional ?status=pending
-router.get("/organizers", checkRole("admin"), getOrganizers);
+// Get all organizers → only admin
+router.get(
+  "/organizers", 
+  authuser, 
+  authorizeRoles("admin"),
+  getOrganizers
+);
 
-// Approve / Reject organizer
-router.patch("/verify-organizer/:id", checkRole("admin"), verifyOrganizer);
+// Approve / Reject organizer → only admin
+router.patch(
+  "/verify-organizer/:id", 
+  authuser, 
+  authorizeRoles("admin"),
+  verifyOrganizer
+);
 
-// Admin dashboard stats
-router.get("/analytics", checkRole("admin"), getDashboardStats);
+// Admin dashboard stats → only admin
+router.get(
+  "/analytics", 
+  authuser, 
+  authorizeRoles("admin"),
+  getDashboardStats
+);
 
 module.exports = router;
