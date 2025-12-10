@@ -13,7 +13,7 @@ const paymentRoute = require("./Routes/paymentRoute");
 
 connectDb()
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://main-project-frontend-h644.onrender.com/",
   methods: ["GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"],
   credentials: true,
 }));
