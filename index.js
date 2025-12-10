@@ -12,16 +12,23 @@ const paymentRoute = require("./Routes/paymentRoute");
 
 
 connectDb()
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"],
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(express.json())
+           // <-- REQUIRED
+app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 app.get('/',(req,res)=>{
     res.send('welcome to Event management system system')
 
 
 })
-app.use('/api/attandee',attandeeRoutes)
+app.use('/api/attendee',attandeeRoutes)
 app.use('/api/organizer',organizerroute)
 app.use('/api/auth',userroute)
 app.use('/api/admin',adminroute)

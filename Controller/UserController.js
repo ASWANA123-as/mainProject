@@ -82,14 +82,15 @@ exports.createuser = async (req, res) => {
 
 // LOGIN USER
 exports.loginUser = async (req, res) => {
+  console.log(req.body,'iiii')
   try {
-    const { email, password_hash } = req.body;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
-
+console.log(user,'user')
     if (!user) return res.status(400).json({ message: "User not found" });
 
     // Compare password
-    const isMatch = await bcrypt.compare(password_hash, user.password_hash);
+    const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
     // Create JWT token

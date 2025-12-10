@@ -1,9 +1,9 @@
 const jwt=require('jsonwebtoken')
 require('dotenv').config()
 exports.authuser=(req,res,next)=>{
-console.log("authuser middleware triggerd")
+console.log("authuser middleware triggerd123")
 const token=req.cookies?.token || req.headers.authorization?.split(' ')[1]
-// console.log(token)
+console.log(token,'jjjj')
 if(!token){
     return res.status(400).json({message:"not have token"})
 }
@@ -17,16 +17,19 @@ catch(err){
 }
 }
 exports.authorizeRoles=(...roles)=>{
-    console.log(roles)
+    console.log(roles,'uuuuu1')
+   
     return(req,res,next)=>{
+        console.log(req.user.userType,'iii') 
         // console.log(req)
         if(!req.user){
             return res.status(401).json({message:"please log in"})
 
         }
-        console.log(req.user)
-
+        console.log(req.user,'uuuu3')
+console.log(roles,'9999')
         if(!roles.includes(req.user.userType)){
+            console.log(req.user.userType,'uuuu',roles)
             return res.status(400).json({message:"Accessdenied"})
         }
         next()

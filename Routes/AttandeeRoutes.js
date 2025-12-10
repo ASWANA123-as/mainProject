@@ -7,6 +7,9 @@ const {
   registerForEvent,
   unregisterEvent,
   addLoyaltyPoints,
+  getAllEvents,
+  downloadTicket,
+  getLoyaltyPoints
 } = require("../Controller/AttandeeController");
 
 const { checkRole } = require("../Middlewear/role");
@@ -35,5 +38,19 @@ router.delete("/unregister/:eventId", authuser, authorizeRoles("attendee"), unre
 
 // Add loyalty points
 router.patch("/loyalty/add", authuser, authorizeRoles("attendee"), addLoyaltyPoints);
+
+router.get(
+  "/events/all",
+  authuser,
+  authorizeRoles("attendee"),
+  getAllEvents
+);
+router.get("/ticket/:eventId", authuser, authorizeRoles("attendee"), downloadTicket);
+router.get(
+  "/loyalty",
+  authuser,
+  authorizeRoles("attendee"),
+  getLoyaltyPoints
+);
 
 module.exports = router;

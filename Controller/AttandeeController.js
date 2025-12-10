@@ -1,4 +1,6 @@
 const Attendee = require("../Modal/AttandeeModal");
+const PDFDocument = require("pdfkit");
+const Loyalty =require("../Modal/Loyalty")
 const Event = require("../Modal/EventModal");
 
 // -------------------------------------------
@@ -27,6 +29,73 @@ const createAttendeeProfile = async (req, res) => {
     res.status(500).json({ message: "Error creating attendee profile", error });
   }
 };
+
+
+
+
+const downloadTicket = async (req, res) => {
+  try {
+    const doc = new PDFDocument();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=ticket.pdf");
+
+    doc.pipe(res);
+     const userId = req.user.id;
+  const eventId = req.params.eventId;
+
+    doc.fontSize(26).text("Event Ticket", { align: "center" });
+      doc.moveDown();
+      doc.fontSize(16).text(`User ID: ${userId}`);
+      doc.text(`Event ID: ${eventId}`);
+     
+
+      doc.moveDown();
+      doc.text("Thank you for registering!", { align: "center" });
+
+
+    doc.end();
+
+  } catch (error) {
+    console.error("PDF ERROR:", error);
+    res.status(500).send("PDF Error");
+  }
+};
+
+
+const generateTicketPDF = async (userId, eventId) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const PDFDocument = require("pdfkit");
+      const doc = new PDFDocument();
+      let chunks = [];
+
+      // --- FIX: PIPE PDF OUTPUT ----
+      const stream = doc.pipe(new require("stream").PassThrough());
+
+      stream.on("data", (chunk) => chunks.push(chunk));
+      stream.on("end", () => resolve(Buffer.concat(chunks)));
+      stream.on("error", reject);
+
+      // --- PDF CONTENT ---
+      doc.fontSize(26).text("Event Ticket", { align: "center" });
+      doc.moveDown();
+      doc.fontSize(16).text(`User ID: ${userId}`);
+      doc.text(`Event ID: ${eventId}`);
+     
+
+      doc.moveDown();
+      doc.text("Thank you for registering!", { align: "center" });
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+
+
 
 // -------------------------------------------
 // GET MY PROFILE
@@ -127,6 +196,25 @@ const unregisterEvent = async (req, res) => {
     res.status(500).json({ message: "Error unregistering event", error });
   }
 };
+const getAllEvents = async (req, res) => {
+  try {
+    const events = await Event.find()
+      .populate("created_by", "name email") // optional
+      .sort({ date: 1 });                    // upcoming first
+
+    return res.status(200).json({
+      success: true,
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error: Unable to fetch events",
+      error: error.message,
+    });
+  }
+}
 
 // -------------------------------------------
 // GET EVENTS USER REGISTERED FOR
@@ -145,29 +233,63 @@ const getRegisteredEvents = async (req, res) => {
 // ADD LOYALTY POINTS
 // -------------------------------------------
 const addLoyaltyPoints = async (req, res) => {
+  console.log(req,'uuu')
   try {
+    console.log("BODY:", req.body);
+console.log("HEADERS:", req.headers["content-type"]);
+
     const { points } = req.body;
 
-    if (!points || typeof points !== "number") {
+    if (typeof points !== "number") {
       return res.status(400).json({ message: "Points must be a number" });
     }
 
-    const attendee = await Attendee.findOneAndUpdate(
-      { user_id: req.user.id },
-      { $inc: { loyalty_points: points } },
-      { new: true }
-    );
-
-    if (!attendee) {
-      return res.status(404).json({ message: "Attendee profile not found" });
+    let loyalty = await Loyalty.findOne({ userId: req.user.id });
+console.log(loyalty,'yyyy')
+    if (!loyalty) {
+      loyalty = new Loyalty({
+        userId: req.user.id,
+        points: points,
+      });
+    } else {
+      loyalty.points += points;
     }
 
+    await loyalty.save();
+
     res.status(200).json({
-      message: "Loyalty points added",
-      attendee,
+      message: "Loyalty points updated",
+      points: loyalty.points,
     });
+
   } catch (error) {
-    res.status(500).json({ message: "Error updating loyalty points", error });
+    console.error("Loyalty Update Error:", error);
+    res.status(500).json({ message: "Error updating loyalty points" });
+  }
+};
+
+
+const getLoyaltyPoints = async (req, res) => {
+  console.log(req,'yyy')
+  try {
+    const attendee = await Attendee.findOne({ user_id: req.user.id }); 
+
+    const loyalty=await Loyalty.findOne({ userId: req.user.id })
+
+    if (!attendee) {
+      return res.status(404).json({ success: false, message: "Attendee profile not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      loyaltyPoints: loyalty.points
+    });
+
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Server Error: Unable to fetch loyalty points"
+    });
   }
 };
 
@@ -182,4 +304,9 @@ module.exports = {
   registerForEvent,
   unregisterEvent,
   addLoyaltyPoints,
+  getAllEvents,
+  downloadTicket,
+  getLoyaltyPoints
+  
+  
 };
