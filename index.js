@@ -20,9 +20,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.options("*", cors({
-  origin: allowedOrigin
-}));
+
 
 
 app.use(cookieParser());
