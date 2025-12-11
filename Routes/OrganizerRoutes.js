@@ -1,5 +1,6 @@
 const express = require("express");
-const upload = require('../Middlewear/Upload');
+// const upload = require('../Middlewear/Upload');
+const upload = require("../config/Multer.js");
 const { authuser, authorizeRoles } = require("../Middlewear/auth.js");
 
 const {
@@ -28,7 +29,7 @@ router.put("/update-profile", authuser, authorizeRoles("organizer"), updateOrgan
 router.post(
   "/verification-docs",
   authuser, authorizeRoles("organizer"),
-  upload.any(), // allow multiple files
+  upload.single("document"),  // allow multiple files
   uploadVerificationDocs
 );
 

@@ -102,33 +102,28 @@ exports.updateOrganizerProfile = async (req, res) => {
 
 exports.uploadVerificationDocs = async (req, res) => {
   try {
-    const organizerId = req.user.id;
-
-    const org = await Organizer.findOne({ user_id: organizerId });
-    if (!org) {
-      return res.status(404).json({ message: "Organizer profile not found" });
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "No files uploaded" });
-    }
+    // req.file.path contains Cloudinary URL
+    const fileUrl = req.file.path;
 
-    const uploadedDocs = req.files.map((file) => ({
-      file_name: file.originalname,
-      url: `/uploads/verification_docs/${file.filename}`,
-    }));
+    // Save URL to database
+    await Organizer.findByIdAndUpdate(
+      req.user.id,
+      { verificationDoc: fileUrl },
+      { new: true }
+    );
 
-    org.verification_docs.push(...uploadedDocs);
-
-    await org.save();
-
-    res.status(200).json({
-      message: "Documents uploaded successfully",
-      documents: uploadedDocs,
-      organizer: org,
+    return res.status(200).json({
+      success: true,
+      message: "Document uploaded successfully",
+      fileUrl,
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    console.error("Upload error:", err);
+    return res.status(500).json({ success: false, message: "Upload failed" });
   }
 };
 
