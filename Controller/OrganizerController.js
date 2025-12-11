@@ -115,7 +115,9 @@ exports.uploadVerificationDocs = async (req, res) => {
     // Upload each file to Cloudinary
     for (const file of req.files) {
       const result = await cloudinary.uploader.upload(file.path, {
-        folder: "organizer_docs",
+        folder: "verification_docs",
+        resource_type: "raw",       // REQUIRED for PDFs, docs, etc.
+        access_mode: "public",
       });
 
       uploadedDocs.push({
