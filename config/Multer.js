@@ -7,6 +7,10 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "verification_docs",  // Cloudinary folder name
     allowed_formats: ["jpg", "jpeg", "png", "pdf"],
+      resource_type: "raw",   // REQUIRED for PDFs
+      type: "upload",         // ensures public asset
+      access_mode: "public",  // makes PDF accessible without signing
+      format: "pdf",  
   },
 });
 
