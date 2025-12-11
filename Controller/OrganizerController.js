@@ -1,6 +1,7 @@
 const Organizer = require("../Modal/OrganizerModal.js");
 const Event = require("../Modal/EventModal.js");
 const User = require("../Modal/UserModal.js");
+const cloudinary = require("../config/Cloudinary.js");
 
 // ----------------------------------------------------
 // CREATE ORGANIZER PROFILE
