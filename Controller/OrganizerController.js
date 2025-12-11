@@ -118,6 +118,7 @@ exports.uploadVerificationDocs = async (req, res) => {
         folder: "verification_docs",
         resource_type: "raw",       // REQUIRED for PDFs, docs, etc.
         access_mode: "public",
+        type: "upload", 
       });
 
       uploadedDocs.push({
