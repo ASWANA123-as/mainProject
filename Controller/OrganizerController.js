@@ -32,7 +32,7 @@ exports.createOrganizerProfile = async (req, res) => {
       success: true,
       message: "Organizer profile created",
       data: organizer,
-    });
+    })
   } catch (err) {
     console.error("Error creating organizer profile:", err);
     res.status(500).json({ success: false, message: err.message });
@@ -70,13 +70,12 @@ exports.updateOrganizerProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const { company_name } = req.body;
+    const { company_name, bio } = req.body;
 
     const organizer = await Organizer.findOneAndUpdate(
       { user_id: userId },
-      { company_name },
-      { new: true },
-      {bio}
+      { company_name, bio },
+      { new: true }
     );
 
     if (!organizer) {
@@ -96,6 +95,7 @@ exports.updateOrganizerProfile = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // ----------------------------------------------------
 // UPLOAD VERIFICATION DOCUMENTS
