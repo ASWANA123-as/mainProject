@@ -12,11 +12,18 @@ const paymentRoute = require("./Routes/paymentRoute");
 
 
 connectDb()
+const allowedOrigin = "https://main-project-frontend-h644.onrender.com";
+
 app.use(cors({
-  origin: "https://main-project-frontend-h644.onrender.com",
-  methods: ["GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"],
-  credentials: true,
+  origin: allowedOrigin,
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
+  credentials: true
 }));
+
+app.options("*", cors({
+  origin: allowedOrigin
+}));
+
 
 app.use(cookieParser());
 app.use(express.json())
