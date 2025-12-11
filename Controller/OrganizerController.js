@@ -75,7 +75,8 @@ exports.updateOrganizerProfile = async (req, res) => {
     const organizer = await Organizer.findOneAndUpdate(
       { user_id: userId },
       { company_name },
-      { new: true }
+      { new: true },
+      {Bio}
     );
 
     if (!organizer) {

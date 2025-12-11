@@ -9,8 +9,9 @@ const organizerSchema = new mongoose.Schema({
 
   company_name: { 
     type: String,
-
+default:null
   },
+  Bio:{ type: String,default:null},
 
   verification_status: { 
     type: String, 
