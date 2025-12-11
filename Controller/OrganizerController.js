@@ -76,7 +76,7 @@ exports.updateOrganizerProfile = async (req, res) => {
       { user_id: userId },
       { company_name },
       { new: true },
-      {Bio}
+      {bio}
     );
 
     if (!organizer) {

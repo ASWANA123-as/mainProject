@@ -11,7 +11,7 @@ const organizerSchema = new mongoose.Schema({
     type: String,
 default:null
   },
-  Bio:{ type: String,default:null},
+  bio:{ type: String,default:null},
 
   verification_status: { 
     type: String, 
