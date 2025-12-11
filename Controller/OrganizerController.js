@@ -102,31 +102,50 @@ exports.updateOrganizerProfile = async (req, res) => {
 
 exports.uploadVerificationDocs = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: "No file uploaded" });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No files uploaded"
+      });
     }
 
-    // req.file.path contains Cloudinary URL
-    const fileUrl = req.file.path;
+    const uploadedDocs = [];
 
-    // Save URL to database
-    await Organizer.findByIdAndUpdate(
-      req.user.id,
-      { verificationDoc: fileUrl },
+    // Upload each file to Cloudinary
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: "organizer_docs",
+      });
+
+      uploadedDocs.push({
+        file_name: file.originalname,
+        url: result.secure_url,
+      });
+    }
+
+    // Save uploaded documents in organizer record
+    const updatedOrganizer = await Organizer.findOneAndUpdate(
+      { user_id: req.user.id },
+      { $push: { verification_docs: { $each: uploadedDocs } } },
       { new: true }
     );
 
     return res.status(200).json({
       success: true,
-      message: "Document uploaded successfully",
-      fileUrl,
+      message: "Documents uploaded successfully",
+      uploaded_docs: uploadedDocs,
+      organizer: updatedOrganizer
     });
+
   } catch (err) {
-    console.error("Upload error:", err);
-    return res.status(500).json({ success: false, message: "Upload failed" });
+    console.error("Document upload error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Upload failed",
+      error: err.message
+    });
   }
 };
-
 // ----------------------------------------------------
 // GET ALL EVENTS CREATED BY ORGANIZER
 // ----------------------------------------------------

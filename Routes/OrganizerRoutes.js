@@ -29,7 +29,7 @@ router.put("/update-profile", authuser, authorizeRoles("organizer"), updateOrgan
 router.post(
   "/verification-docs",
   authuser, authorizeRoles("organizer"),
-  upload.single("document"),  // allow multiple files
+  upload.array("document", 10),  // allow multiple files
   uploadVerificationDocs
 );
 
