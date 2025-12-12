@@ -233,19 +233,16 @@ const getRegisteredEvents = async (req, res) => {
 // ADD LOYALTY POINTS
 // -------------------------------------------
 const addLoyaltyPoints = async (req, res) => {
-  console.log(req,'uuu')
   try {
-    console.log("BODY:", req.body);
-console.log("HEADERS:", req.headers["content-type"]);
-
     const { points } = req.body;
 
     if (typeof points !== "number") {
       return res.status(400).json({ message: "Points must be a number" });
     }
 
+    // 1. Update / Create Loyalty Record
     let loyalty = await Loyalty.findOne({ userId: req.user.id });
-console.log(loyalty,'yyyy')
+
     if (!loyalty) {
       loyalty = new Loyalty({
         userId: req.user.id,
@@ -257,16 +254,34 @@ console.log(loyalty,'yyyy')
 
     await loyalty.save();
 
-    res.status(200).json({
-      message: "Loyalty points updated",
-      points: loyalty.points,
+    // 2. UPDATE ATTENDEE MODEL
+    const attendee = await Attendee.findOne({ user_id: req.user.id });
+
+    if (!attendee) {
+      return res.status(404).json({ message: "Attendee profile not found" });
+    }
+
+    // Add loyalty points to attendee model
+    attendee.loyalty_points = (attendee.loyalty_points || 0) + points;
+
+    await attendee.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Loyalty points updated successfully",
+      loyaltyPoints: loyalty.points,
+      attendeePoints: attendee.loyaltyPoints,
     });
 
   } catch (error) {
     console.error("Loyalty Update Error:", error);
-    res.status(500).json({ message: "Error updating loyalty points" });
+    res.status(500).json({
+      success: false,
+      message: "Error updating loyalty points",
+    });
   }
 };
+
 
 
 const getLoyaltyPoints = async (req, res) => {
