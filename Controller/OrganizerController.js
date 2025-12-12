@@ -73,7 +73,7 @@ exports.updateOrganizerProfile = async (req, res) => {
     const {company_name, bio } = req.body;
 
     const organizer = await Organizer.findOneAndUpdate(
-      { user_id: {userId:req.user.id,name:req.user.name} },
+      { user_id: userId},
       { company_name, bio },
       { new: true }
     );
